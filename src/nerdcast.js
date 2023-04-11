@@ -53,9 +53,7 @@ class Nerdcast {
     }
 
 
-    static createFeed(feed) {
-        let feedCreated
-
+    static startFeed(feed, subject, subjectDescription) {
         const feedDeclarationAndRSSAtributes = [
             `<?xml version="${feed._declaration._attributes.version}" `,
             `encoding="${feed._declaration._attributes.encoding}"?>\n`,
@@ -74,11 +72,13 @@ class Nerdcast {
 
         const feedChannel = [
             `<channel>\n`,
-            `\t<title>"${ch['title']._text}"</title>\n`,
+            `\t<title>"[${ch['title']._text}] ${subject}"</title>\n`,
             `\t<googleplay:author>`,
             `${ch['googleplay:author']._text}`,
             `</googleplay:author>\n`,
-            `\t<description>${ch['description']._text}</description>\n`,
+            `\t<description>`,
+            `${ch['description']._text}. ${subjectDescription}`,
+            `</description>\n`,
             `\t<googleplay:image href="`,
             `${ch['googleplay:image']._attributes.href}"/>\n`,
             `\t<language>${ch['language']._text}</language>\n`,
@@ -91,9 +91,11 @@ class Nerdcast {
             `\t<lastBuildDate>${ch['lastBuildDate']._text}</lastBuildDate>\n`,
             `\t<itunes:author>${ch['itunes:author']._text}</itunes:author>\n`,
             `\t<itunes:subtitle>`,
-            `${ch['itunes:subtitle']._text}`,
+            `[${ch['itunes:subtitle']._text}] ${subject}`,
             `</itunes:subtitle>\n`,
-            `\t<itunes:summary>${ch['itunes:summary']._text}</itunes:summary>`,
+            `\t<itunes:summary>`,
+            `${ch['itunes:summary']._text}. ${subjectDescription}`,
+            `</itunes:summary>`,
             `\n`,
             `\t<itunes:category text=`,
             `"${ch['itunes:category']._attributes.text.replace('&', '&amp;')}`,
@@ -123,17 +125,67 @@ class Nerdcast {
             `</managingEditor>\n`
         ].join('')
 
-        feedCreated = [
+        return [
             feedDeclarationAndRSSAtributes, 
             feedChannel
         ].join('')
     }
 
 
+    static #getEpisodes(episodes) {
+        let listOfEpisodes = new Array()
+        let temp = '__temp'
+
+        episodes.forEach(ep => {
+            listOfEpisodes.push([
+                '\t<item>\n',
+                `\t\t<title>${ep.title._text}</title>\n`,
+                `\t\t<link>${ep.link._text}</link>\n`,
+                `\t\t<itunes:summary>`,
+                `${ep['itunes:summary']._text}`,
+                `</itunes:summary>\n`,
+                `\t\t<itunes:image href="`,
+                `${ep['itunes:image']._attributes.href}"/>\n`,
+                `\t\t<itunes:duration>`,
+                `${ep['itunes:duration']._text}`,
+                `</itunes:duration>\n`,
+                `\t\t<enclosure url="${ep.enclosure._attributes.url}" `,
+                `length="${ep.enclosure._attributes.length}" `,
+                `type="${ep.enclosure._attributes.type}"/>\n`,
+                `\t\t<pubDate>${ep.pubDate._text}</pubDate>\n`,
+                `\t\t<guid>${ep.guid._text}</guid>\n`,
+                `\t\t<description>`,
+                `<![CDATA[${ep.description._cdata}]]>`,
+                `</description>\n`,
+                '\t</item>\n'
+            ].join(''))
+        })
+
+        return listOfEpisodes.join('')
+
+    }
+
+
     async run() {
         await this.#requestFeed()
         this.#filterEpisodes()
-        Nerdcast.createFeed(this.#nerdcastRSSAsJSON)
+
+        const rssString = Nerdcast.startFeed(
+            this.#nerdcastRSSAsJSON,
+            'Assunto',
+            'Testando a descrição do assunto'
+        )
+
+        const episodes = Nerdcast.#getEpisodes(
+            this.#feeds.vouTeContar
+        )
+
+        const feedRSS = [
+            rssString, 
+            episodes,
+            '</channel>\n',
+            '</rss>\n'
+        ].join('')
     }
 }
 
