@@ -1,13 +1,16 @@
-import { readFileSync } from 'fs'
+import { readFileSync, writeFile } from 'fs'
 import { xml2json } from 'xml-js'
 
 
-class Nerdcast {
+class NerdCast {
     #nerdcastRSSAsJSON
-    #feeds = new Object()
+    #episodes = new Object()
 
     constructor (feedRSS = 'https://jovemnerd.com.br/feed-nerdcast/') {
         this.nerdcastRSSUrl = feedRSS
+        this.rssFilesInfo = JSON.parse(
+            readFileSync('./databases/rssFilesInfo.json')
+        )
     }
 
 
@@ -16,12 +19,12 @@ class Nerdcast {
     }
 
 
-    get feeds() {
-        return this.#feeds
+    get episodes() {
+        return this.#episodes
     }
 
 
-    async #requestFeed() {
+    async #requestNerdCastOfficialRSS() {
         await fetch(this.nerdcastRSSUrl)
         .then(response => response.text())
         .then(nerdcastRSSText => {
@@ -33,27 +36,26 @@ class Nerdcast {
 
 
     #filterEpisodes() {
-        let feedRSSRegExp = JSON.parse(
-            readFileSync('./reg_exp/reg_exp.json')
-        )
-
-        for (let feed in feedRSSRegExp) {
-            this.#feeds[feed] = new Array()
+        for (let feedName in this.rssFilesInfo) {
+            this.#episodes[feedName] = new Array()
         }
 
         for (let ep of this.#nerdcastRSSAsJSON.rss.channel.item) {
-            for (let regExp in feedRSSRegExp) {
-                const currentRegExp = new RegExp(feedRSSRegExp[regExp], 'i')
-                
+            for (let feedName in this.rssFilesInfo) {
+                const currentRegExp = new RegExp(
+                    this.rssFilesInfo[feedName].regExp, 
+                    'i'
+                )
+
                 if (currentRegExp.exec(ep.title._text)) {
-                    this.#feeds[regExp].push(ep)
+                    this.#episodes[feedName].push(ep)
                 }
             }
         }
     }
 
 
-    static startFeed(feed, subject, subjectDescription) {
+    static #startFeed(feed, subject, subjectDescription) {
         const feedDeclarationAndRSSAtributes = [
             `<?xml version="${feed._declaration._attributes.version}" `,
             `encoding="${feed._declaration._attributes.encoding}"?>\n`,
@@ -166,32 +168,52 @@ class Nerdcast {
     }
 
 
+    #createRSSFileContent(subject, subjectDescription, episodes) {
+        return new Promise(resolve => {
+            const feed = NerdCast.#startFeed(
+                this.#nerdcastRSSAsJSON,
+                subject,
+                subjectDescription
+            )
+
+            const listOfEpisodes = NerdCast.#getEpisodes(episodes)
+
+            resolve([
+                feed, 
+                listOfEpisodes, 
+                '</channel>\n', 
+                '</rss>\n'
+                ].join('')
+            )
+        })
+    }
+
+
     async run() {
-        await this.#requestFeed()
+        await this.#requestNerdCastOfficialRSS()
         this.#filterEpisodes()
 
-        const rssString = Nerdcast.startFeed(
-            this.#nerdcastRSSAsJSON,
-            'Assunto',
-            'Testando a descrição do assunto'
-        )
+        let listOfFeedsStrings = new Array()
 
-        const episodes = Nerdcast.#getEpisodes(
-            this.#feeds.vouTeContar
-        )
+        for (let feed in this.#episodes) {
+            let createRSSPromise = this.#createRSSFileContent(
+                this.rssFilesInfo[feed].name,
+                this.rssFilesInfo[feed].description,
+                this.#episodes[feed]
+            )
 
-        const feedRSS = [
-            rssString, 
-            episodes,
-            '</channel>\n',
-            '</rss>\n'
-        ].join('')
+            listOfFeedsStrings.push(createRSSPromise)
+
+        }
+
+        listOfFeedsStrings = await Promise.all(listOfFeedsStrings)
+
     }
 }
 
 
 const main = async _ => {
-    let nc = new Nerdcast()
+    let nc = new NerdCast()
     await nc.run()
 }
 

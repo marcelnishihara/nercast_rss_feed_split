@@ -1,0 +1,92 @@
+{
+    "canecaDeMamicas": {
+        "regExp": "Caneca\\sde\\sMamicas\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "empreendedor": {
+        "regExp": "Empreendedor\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "ge": {
+        "regExp": "GE\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "generacast": {
+        "regExp": "Generacast\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "haloCast": {
+        "regExp": "HaloCast\\s[0-9]+\\s-\\sHaloCast\\s[0-9]+",
+        "name": "",
+        "description": ""
+    },
+    "laDoBunker": {
+        "regExp": "L.\\sdo\\sBunker\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "laDoBunkerExtra": {
+        "regExp": "L.\\sdo\\sBunker\\s+Extra|L.\\sdo\\sBunker\\s+Oferecido\\spor",
+        "name": "",
+        "description": ""
+    },
+    "laDoBunkerOscar": {
+        "regExp": "L.\\sdo\\sBunker\\sOscar\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "nerdCash": {
+        "regExp": "NerdCash\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "nerdCast": {
+        "regExp": "NerdCast\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "nerdCastExtra": {
+        "regExp": "Extra\\sOferecido\\spor\\s.*\\s|Nerdcast\\sOferecido\\spor\\s.*\\s",
+        "name": "",
+        "description": ""
+    },
+    "nerdCastRPG": {
+        "regExp": "NerdCast\\sRPG\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "nerdLab": {
+        "regExp": "NerdLab\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "nerdTech": {
+        "regExp": "NerdTech\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "papoDeParceiro": {
+        "regExp": "Papo\\sde\\sParceiro\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "speakEnglish": {
+        "regExp": "Speak\\sEnglish\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "vaiTeCatar": {
+        "regExp": "Vai\\ste\\sCatar\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    },
+    "vouTeContar": {
+        "regExp": "Vou\\sTe\\sContar\\s[0-9]{2,}",
+        "name": "",
+        "description": ""
+    }
+}
