@@ -1,26 +1,82 @@
-import { readFileSync, writeFile } from 'fs'
-import { xml2json } from 'xml-js'
+const fs = require('fs')
+const convert = require('xml-js')
 
 
 class NerdCast {
-    #nerdcastRSSAsJSON
+    #nerdcastRSSAsJSON = new Object()
     #episodes = new Object()
+    #arrayOfFeedsStrings = new Array()
+    #rssFilesInfo = new Object()
 
+    /**
+     * "Jovem Nerd" is a Brazilian weblog created in 2002 by Alexandre 
+     * Ottoni, formerly called by the exact name of the blog, and Deive 
+     * Pazos, a.k.a. Azaghâl or Azaghal, as it's more commonly written, 
+     * a reference to the character created by J. R. R. Tolkien.
+     * 
+     * As part of the content produced by the weblog, they released 
+     * back on April 2, 2006, the first episode of their podcast 
+     * (NerdCast), which is still published weekly on Fridays and 
+     * contains over 1000 episodes and a billion downloads.
+     * 
+     * As a result of this long-term journey, they creatively addressed 
+     * several topics, which created a polluted and hard-to-manage feed. 
+     * To solve this problem, this class intends to split the official 
+     * NerdCast feed into new ones separated by topics based on podcast 
+     * episodes name patterns.
+     * 
+     * @class Nerdcast
+     * @author Marcel Nishihara <marcelnishihara+github@gmail.com>
+     * @param {String} [feedRSS] - Official NerdCast RSS Feed URL
+    */
     constructor (feedRSS = 'https://jovemnerd.com.br/feed-nerdcast/') {
         this.nerdcastRSSUrl = feedRSS
-        this.rssFilesInfo = JSON.parse(
-            readFileSync('./databases/rssFilesInfo.json')
-        )
     }
 
 
+    /**
+     * @type {Object}
+     * @returns {Object} Official NerdCast RSS Feed as JSON
+     */
     get nerdcastRSSAsJSON() {
         return this.#nerdcastRSSAsJSON
     }
 
 
+    /**
+     * @type {Object}
+     * @returns {Object} NerdCast episodes separated by topics based on 
+     * its name patterns
+     */
     get episodes() {
         return this.#episodes
+    }
+
+
+    /**
+     * @type {Array}
+     * @returns {Array} An array of the new RSS feeds separated by 
+     * topics based on the podcast epidodes name patterns
+     */
+    get arrayOfFeedsStrings() {
+        return this.#arrayOfFeedsStrings
+    }
+
+
+    /**
+     * @type {Object}
+     * @returns {Object} JSON loaded from 
+     * ``./databases/rssFilesInfo.json`` file.
+     */
+    get rssFilesInfo() {
+        return this.#rssFilesInfo
+    }
+
+
+    #composeRssFilesInfo() {
+        this.#rssFilesInfo = JSON.parse(
+            fs.readFileSync('./databases/rssFilesInfo.json')
+        )
     }
 
 
@@ -29,21 +85,21 @@ class NerdCast {
         .then(response => response.text())
         .then(nerdcastRSSText => {
             this.#nerdcastRSSAsJSON = JSON.parse(
-                xml2json(nerdcastRSSText, { compact: true })
+                convert.xml2json(nerdcastRSSText, { compact: true })
             )
         })
     }
 
 
     #filterEpisodes() {
-        for (let feedName in this.rssFilesInfo) {
+        for (let feedName in this.#rssFilesInfo) {
             this.#episodes[feedName] = new Array()
         }
 
         for (let ep of this.#nerdcastRSSAsJSON.rss.channel.item) {
-            for (let feedName in this.rssFilesInfo) {
+            for (let feedName in this.#rssFilesInfo) {
                 const currentRegExp = new RegExp(
-                    this.rssFilesInfo[feedName].regExp, 
+                    this.#rssFilesInfo[feedName].regExp, 
                     'i'
                 )
 
@@ -136,7 +192,6 @@ class NerdCast {
 
     static #getEpisodes(episodes) {
         let listOfEpisodes = new Array()
-        let temp = '__temp'
 
         episodes.forEach(ep => {
             listOfEpisodes.push([
@@ -189,33 +244,28 @@ class NerdCast {
     }
 
 
-    async run() {
-        await this.#requestNerdCastOfficialRSS()
-        this.#filterEpisodes()
-
-        let listOfFeedsStrings = new Array()
-
+    #composeArrayOfFeedStrings() {
         for (let feed in this.#episodes) {
             let createRSSPromise = this.#createRSSFileContent(
-                this.rssFilesInfo[feed].name,
-                this.rssFilesInfo[feed].description,
+                this.#rssFilesInfo[feed].name,
+                this.#rssFilesInfo[feed].description,
                 this.#episodes[feed]
             )
 
-            listOfFeedsStrings.push(createRSSPromise)
+            this.#arrayOfFeedsStrings.push(createRSSPromise)
 
         }
+    }
 
-        listOfFeedsStrings = await Promise.all(listOfFeedsStrings)
 
+    async run() {
+        this.#composeRssFilesInfo()
+        await this.#requestNerdCastOfficialRSS()
+        this.#filterEpisodes()        
+        this.#composeArrayOfFeedStrings()
+        this.#arrayOfFeedsStrings = await Promise.all(this.#arrayOfFeedsStrings)
     }
 }
 
 
-const main = async _ => {
-    let nc = new NerdCast()
-    await nc.run()
-}
-
-
-main()
+module.exports = NerdCast
