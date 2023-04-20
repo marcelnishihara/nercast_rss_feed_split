@@ -1,9 +1,14 @@
-const NerdCast = require('./src/nerdcast.js')
+const CloudStorage = require('./src/cloud_storage.js')
 
 
 const main = async _ => {
-    let nerdCast = new NerdCast()
-    nerdCast.run()
+    let cs = new CloudStorage()
+    await cs.run()
+    
+    cs.files.forEach(file => {
+        console.info(file.name)
+    })
 }
+
 
 main()

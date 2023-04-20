@@ -284,11 +284,16 @@ class NerdCast {
 
 
     /**
+     * Returns a ``Promise`` to compose a complete feed, closing the 
+     * tags ``</channel>`` and ``</rss>``.
      * 
-     * 
-     * @param {String} subject 
-     * @param {String} subjectDescription 
-     * @param {String[]} episodes
+     * @method #createRSSFileContent
+     * @param {String} subject - NerdCast new feed name based on the 
+     * podcast epidodes name patterns
+     * @param {String} subjectDescription - A brief description of the 
+     * NerdCast new feed name
+     * @param {String[]} episodes - List of the episodes already 
+     * filtered by its names pattern
      * @returns {Promise}
      */
     #createRSSFileContent(subject, subjectDescription, episodes) {
@@ -311,6 +316,14 @@ class NerdCast {
         })
     }
 
+
+    /**
+     * For loop that populates the private ``#arrayOfFeedsStrings`` 
+     * with a promise for each new feed created separated by topics 
+     * based on NerdCast episodes name patterns.
+     * 
+     * @method #composeArrayOfFeedStrings
+     */
     #composeArrayOfFeedStrings() {
         for (let feed in this.#episodes) {
             let createRSSPromise = this.#createRSSFileContent(
@@ -325,12 +338,23 @@ class NerdCast {
     }
 
 
+    /**
+     * The only public method executes all private ones to create a 
+     * valid RSS feed content for each subject.
+     * 
+     * This method overwrites the ``Array`` of promises stored in the 
+     * property ``arrayOfFeedsStrings`` into a list of valid RSS feed.
+     * 
+     * @method run
+     */
     async run() {
         this.#composeRssFilesInfo()
         await this.#requestNerdCastOfficialRSS()
-        this.#filterEpisodes()        
+        this.#filterEpisodes()
         this.#composeArrayOfFeedStrings()
-        this.#arrayOfFeedsStrings = await Promise.all(this.#arrayOfFeedsStrings)
+        this.#arrayOfFeedsStrings = await Promise.all(
+            this.#arrayOfFeedsStrings
+        )
     }
 }
 
