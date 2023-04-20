@@ -73,6 +73,13 @@ class NerdCast {
     }
 
 
+    /**
+     * Reads the ``./databases/rssFilesInfo.json`` file and stores its 
+     * content into the private property 
+     * ``#rssFilesInfo``.
+     * 
+     * @method #composeRssFilesInfo
+     */
     #composeRssFilesInfo() {
         this.#rssFilesInfo = JSON.parse(
             fs.readFileSync('./databases/rssFilesInfo.json')
@@ -80,6 +87,12 @@ class NerdCast {
     }
 
 
+    /**
+     * Requests the official NerdCast RSS feed and parse its content as 
+     * JSON, populating the privete property ``#nerdcastRSSAsJSON``.
+     * 
+     * @method #requestNerdCastOfficialRSS
+     */
     async #requestNerdCastOfficialRSS() {
         await fetch(this.nerdcastRSSUrl)
         .then(response => response.text())
@@ -91,6 +104,28 @@ class NerdCast {
     }
 
 
+    /**
+     * Populates the private property ``#episodes`` with the podcast 
+     * items separated by topics based on podcast episodes name 
+     * patterns.
+     * 
+     * @exemple After running it, the private property ``#episodes`` is 
+     * going to look like the following example:
+     * ```json
+     * {
+     *   "nerdcast": [
+     *     { "title": { "_text": "NerdCast 00 - Pilot" } },
+     *     { "title": { "_text": "NerdCast 01 - First Ep" } }
+     *   ],
+     *   "canecaDeMamicas": [
+     *     { "title": { "_text": "Caneca de Mamicas 01 - Pilot" } },
+     *     { "title": { "_text": "Caneca de Mamicas 02 - First Ep" } }
+     *   ]
+     * }
+     * ```
+     * 
+     * @method #filterEpisodes
+     */
     #filterEpisodes() {
         for (let feedName in this.#rssFilesInfo) {
             this.#episodes[feedName] = new Array()
@@ -111,6 +146,22 @@ class NerdCast {
     }
 
 
+    /**
+     * Starts the content of the XML from a given parameters: 
+     * ``feed``, ``subject``, and ``subjectDescription``.
+     * 
+     * This private method will make the XML declaration, and compose 
+     * the ``<channel>`` tags, all based on the official Nerdcast RSS 
+     * feed.
+     * 
+     * @method #startFeed
+     * @param {Object} feed - Official NerdCast RSS Feed as JSON
+     * @param {String} subject - NerdCast new feed name based on the 
+     * podcast epidodes name patterns
+     * @param {String} subjectDescription - A brief description of the 
+     * NerdCast new feed name
+     * @returns {String}
+     */
     static #startFeed(feed, subject, subjectDescription) {
         const feedDeclarationAndRSSAtributes = [
             `<?xml version="${feed._declaration._attributes.version}" `,
@@ -190,6 +241,15 @@ class NerdCast {
     }
 
 
+    /**
+     * Creates the ``<item>`` tag and populate it with the episodes 
+     * info already filtered by its names pattern.
+     * 
+     * @method #getEpisodes
+     * @param {Array[]} episodes - List of the episodes already filtered 
+     * by its names pattern
+     * @returns {String}
+     */
     static #getEpisodes(episodes) {
         let listOfEpisodes = new Array()
 
@@ -223,6 +283,14 @@ class NerdCast {
     }
 
 
+    /**
+     * 
+     * 
+     * @param {String} subject 
+     * @param {String} subjectDescription 
+     * @param {String[]} episodes
+     * @returns {Promise}
+     */
     #createRSSFileContent(subject, subjectDescription, episodes) {
         return new Promise(resolve => {
             const feed = NerdCast.#startFeed(
@@ -242,7 +310,6 @@ class NerdCast {
             )
         })
     }
-
 
     #composeArrayOfFeedStrings() {
         for (let feed in this.#episodes) {
