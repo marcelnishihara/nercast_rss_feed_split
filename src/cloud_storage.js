@@ -1,12 +1,15 @@
+const NerdCast = require('../src/nerdcast.js')
+
 const { Storage } = require('@google-cloud/storage')
 const serviceAccount = require('../credentials/cloud_storage.json')
 
 
-class CloudStorage {
+class CloudStorage extends NerdCast {
     #storage
-    #files = new Array()
+    #objects
 
     constructor (projectId = 'nerdcast-feeds') {
+        super()
         this.projectId = projectId
     }
 
@@ -15,8 +18,8 @@ class CloudStorage {
      * @type {Storage.bucket.files[]}
      * @returns {Storage.bucket.files[]} Objects from a given bucket
      */
-    get files() {
-        return this.#files
+    get objects() {
+        return this.#objects
     }
 
 
@@ -41,11 +44,11 @@ class CloudStorage {
      * Gets the all objects from a bucket named in the parameter and 
      * populate the private property ``#files``
      * 
-     * @method #getFilesFromBucket
+     * @method #getObjectsFromBucket
      * @param {String} bucketName - Bucket name
      */
-    async #getFilesFromBucket(bucketName = 'nerdcast-feeds') {
-        [this.#files] = await this.#storage.bucket(bucketName).getFiles()
+    async #getObjectsFromBucket(bucketName = 'nerdcast-feeds') {
+        [this.#objects] = await this.#storage.bucket(bucketName).getFiles()
     }
 
 
@@ -54,11 +57,11 @@ class CloudStorage {
      * valid RSS feed content for each subject and upload them into the 
      * bucket, replacing the old files if exists.
      * 
-     * @method run
+     * @method execute
      */
-    async run() {
+    async execute() {
         this.#authentication()
-        await this.#getFilesFromBucket()
+        await this.#getObjectsFromBucket()
     }
 }
 

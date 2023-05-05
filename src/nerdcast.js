@@ -345,9 +345,9 @@ class NerdCast {
      * This method overwrites the ``Array`` of promises stored in the 
      * property ``arrayOfFeedsStrings`` into a list of valid RSS feed.
      * 
-     * @method run
+     * @method execute
      */
-    async run() {
+    async execute() {
         this.#composeRssFilesInfo()
         await this.#requestNerdCastOfficialRSS()
         this.#filterEpisodes()
