@@ -1,15 +1,12 @@
-const NerdCast = require('../src/nerdcast.js')
-
 const { Storage } = require('@google-cloud/storage')
 const serviceAccount = require('../credentials/cloud_storage.json')
 
 
-class CloudStorage extends NerdCast {
+class CloudStorage {
     #storage
     #objects
 
-    constructor (projectId = 'nerdcast-feeds') {
-        super()
+    constructor (projectId = 'nerdcast-feeds') {      
         this.projectId = projectId
     }
 

@@ -1,14 +1,15 @@
-const CloudStorage = require('./src/cloud_storage.js')
-
+const Spotify = require('./src/spotify')
+const Helpers = require('./src/helpers')
 
 const main = async _ => {
-    let cs = new CloudStorage()
-    await cs.execute()
+    let nerdcastId = '22Wgt4ASeaw8mmoqAWNUn1'
+    let spotify = new Spotify(nerdcastId)
+    await spotify.run()
     
-    cs.objects.forEach(object => {
-        console.info(object.name)
-    })
-
+    Helpers.log(
+        './databases/__nerdcast.json',
+        JSON.stringify(spotify.nerdcast, null, 4)
+    )
 }
 
 

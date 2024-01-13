@@ -1,5 +1,7 @@
 # NerdCast Feeds
 
+
+### About NerdCast
 "Jovem Nerd" is a Brazilian weblog created in 2002 by Alexandre 
 Ottoni, formerly called by the exact name of the blog, and Deive 
 Pazos, a.k.a. Azaghâl or Azaghal, as it's more commonly written, 
@@ -15,22 +17,3 @@ several topics, which created a polluted and hard-to-manage feed.
 To solve this problem, this class intends to split the official 
 NerdCast feed into new ones separated by topics based on podcast 
 episodes name patterns.
-
-
-## Updates
-  - `Oct 03, 2023`
-    - Development scheduled. A functional first version of the script 
-    will debut late in december 2023
-
-  - `Sep 08, 2023`
-    - Issue [`#1`](https://github.com/marcelnishihara/nerdcast_feeds/issues/1) 
-    created
-    - This issue is a reminder to set up and document the project 
-     properly.
-
-  - `Apr 20, 2023`
-    - Commit [`6db799a`](https://github.com/marcelnishihara/nerdcast_feeds/tree/6db799a04ad7733d44a4b7410b134c0d939b9996): 
-    `v1.0.0: First GCP Cloud Storage tests`
-    - I ran the very first test and the script behavior was what 
-    I expected. Considering the test data, the development must go on 
-    as soon as possible

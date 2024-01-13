@@ -1,5 +1,6 @@
 # FOLDERS
-
 node_modules
-credentials
-temp
+
+# FILES
+credentials/__*
+databases/__*
