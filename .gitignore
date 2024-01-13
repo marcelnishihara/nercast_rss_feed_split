@@ -4,3 +4,4 @@ node_modules
 # FILES
 credentials/__*
 databases/__*
+feeds/__*

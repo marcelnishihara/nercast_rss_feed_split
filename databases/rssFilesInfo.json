@@ -1,92 +1,78 @@
 {
     "canecaDeMamicas": {
         "regExp": "Caneca\\sde\\sMamicas\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "Caneca de Mamicas"
     },
     "empreendedor": {
         "regExp": "Empreendedor\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "Empreendedor"
     },
     "ge": {
         "regExp": "GE\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "GE"
     },
     "generacast": {
         "regExp": "Generacast\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "Generacast"
     },
     "haloCast": {
         "regExp": "HaloCast\\s[0-9]+\\s-\\sHaloCast\\s[0-9]+",
-        "name": "",
-        "description": ""
+        "name": "HaloCast"
     },
     "laDoBunker": {
         "regExp": "L.\\sdo\\sBunker\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "Lá do Bunker"
     },
     "laDoBunkerExtra": {
         "regExp": "L.\\sdo\\sBunker\\s+Extra|L.\\sdo\\sBunker\\s+Oferecido\\spor",
-        "name": "",
-        "description": ""
+        "name": "Lá do Bunker Extra"
     },
     "laDoBunkerOscar": {
         "regExp": "L.\\sdo\\sBunker\\sOscar\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "Lá do Bunker: Oscar"
     },
     "nerdCash": {
         "regExp": "NerdCash\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "NerdCash"
     },
     "nerdCast": {
-        "regExp": "NerdCast\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "regExp": "NerdCast\\s[0-9]{2,}|NerdCast\\sBabyCast.*",
+        "name": "NerdCast"
     },
     "nerdCastExtra": {
-        "regExp": "Extra\\sOferecido\\spor\\s.*\\s|Nerdcast\\sOferecido\\spor\\s.*\\s",
-        "name": "",
-        "description": ""
+        "regExp": "Extra\\sOferecido\\spor\\s.*\\s|Nerdcast\\sOferecido\\spor\\s.*\\s|NerdCast\\sExtra.*|NerdCast\\sEXTRA.*",
+        "name": "NerdCast Extra"
     },
     "nerdCastRPG": {
         "regExp": "NerdCast\\sRPG\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "NerdCast RPG"
     },
     "nerdLab": {
         "regExp": "NerdLab\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "NerdLab"
+    },
+    "nerdNaCloud": {
+        "regExp": "Nerd\\sna\\sCloud\\s[0-9]{1,}",
+        "name": "NerdLab"
     },
     "nerdTech": {
         "regExp": "NerdTech\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "NerdTech"
     },
     "papoDeParceiro": {
         "regExp": "Papo\\sde\\sParceiro\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "Papo de Parceiro"
     },
     "speakEnglish": {
         "regExp": "Speak\\sEnglish\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "Speak English"
     },
     "vaiTeCatar": {
         "regExp": "Vai\\ste\\sCatar\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "Vai te Catar: Copa do Mundo FIFA de 2022, no Qatar"
     },
     "vouTeContar": {
         "regExp": "Vou\\sTe\\sContar\\s[0-9]{2,}",
-        "name": "",
-        "description": ""
+        "name": "Vou te Contar"
     }
 }

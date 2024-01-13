@@ -1,11 +1,15 @@
 const fs = require('fs')
 const convert = require('xml-js')
+const Helpers = require('./helpers')
+const { promises } = require('dns')
 
 
 class NerdCast {
     #nerdcastRSSAsJSON = new Object()
     #episodes = new Object()
-    #arrayOfFeedsStrings = new Array()
+    #officialRSSFeedEpisodesTotal = 0
+    #totalOfEpisodesFromFilteredFeeds = 0
+    #feeds = new Array()
     #rssFilesInfo = new Object()
 
     /**
@@ -58,8 +62,8 @@ class NerdCast {
      * @returns {Array} An array of the new RSS feeds separated by 
      * topics based on the podcast epidodes name patterns
      */
-    get arrayOfFeedsStrings() {
-        return this.#arrayOfFeedsStrings
+    get feeds() {
+        return this.#feeds
     }
 
 
@@ -70,20 +74,6 @@ class NerdCast {
      */
     get rssFilesInfo() {
         return this.#rssFilesInfo
-    }
-
-
-    /**
-     * Reads the ``./databases/rssFilesInfo.json`` file and stores its 
-     * content into the private property 
-     * ``#rssFilesInfo``.
-     * 
-     * @method #composeRssFilesInfo
-     */
-    #composeRssFilesInfo() {
-        this.#rssFilesInfo = JSON.parse(
-            fs.readFileSync('./databases/rssFilesInfo.json')
-        )
     }
 
 
@@ -131,8 +121,8 @@ class NerdCast {
             this.#episodes[feedName] = new Array()
         }
 
-        for (let ep of this.#nerdcastRSSAsJSON.rss.channel.item) {
-            for (let feedName in this.#rssFilesInfo) {
+        for (let feedName in this.#rssFilesInfo) {
+            for (let ep of this.#nerdcastRSSAsJSON.rss.channel.item) {
                 const currentRegExp = new RegExp(
                     this.#rssFilesInfo[feedName].regExp, 
                     'i'
@@ -142,6 +132,17 @@ class NerdCast {
                     this.#episodes[feedName].push(ep)
                 }
             }
+
+            const totalOfEpisodes = this.#episodes[feedName].length
+
+            const totalOfEpisodesMsg = [
+                `Feed ${feedName} has `,
+                this.#episodes[feedName].length,
+                ` episodes`
+            ].join('')
+
+            console.info(totalOfEpisodesMsg)
+            this.#totalOfEpisodesFromFilteredFeeds += totalOfEpisodes
         }
     }
 
@@ -158,11 +159,9 @@ class NerdCast {
      * @param {Object} feed - Official NerdCast RSS Feed as JSON
      * @param {String} subject - NerdCast new feed name based on the 
      * podcast epidodes name patterns
-     * @param {String} subjectDescription - A brief description of the 
-     * NerdCast new feed name
      * @returns {String}
      */
-    static #startFeed(feed, subject, subjectDescription) {
+    static #startFeed(feed, subject) {
         const feedDeclarationAndRSSAtributes = [
             `<?xml version="${feed._declaration._attributes.version}" `,
             `encoding="${feed._declaration._attributes.encoding}"?>\n`,
@@ -186,7 +185,7 @@ class NerdCast {
             `${ch['googleplay:author']._text}`,
             `</googleplay:author>\n`,
             `\t<description>`,
-            `${ch['description']._text}. ${subjectDescription}`,
+            `${ch['description']._text}`,
             `</description>\n`,
             `\t<googleplay:image href="`,
             `${ch['googleplay:image']._attributes.href}"/>\n`,
@@ -203,7 +202,7 @@ class NerdCast {
             `[${ch['itunes:subtitle']._text}] ${subject}`,
             `</itunes:subtitle>\n`,
             `\t<itunes:summary>`,
-            `${ch['itunes:summary']._text}. ${subjectDescription}`,
+            `${ch['itunes:summary']._text}`,
             `</itunes:summary>`,
             `\n`,
             `\t<itunes:category text=`,
@@ -290,20 +289,13 @@ class NerdCast {
      * @method #createRSSFileContent
      * @param {String} subject - NerdCast new feed name based on the 
      * podcast epidodes name patterns
-     * @param {String} subjectDescription - A brief description of the 
-     * NerdCast new feed name
      * @param {String[]} episodes - List of the episodes already 
      * filtered by its names pattern
      * @returns {Promise}
      */
-    #createRSSFileContent(subject, subjectDescription, episodes) {
+    #createRSSFileContent(subject, episodes) {
         return new Promise(resolve => {
-            const feed = NerdCast.#startFeed(
-                this.#nerdcastRSSAsJSON,
-                subject,
-                subjectDescription
-            )
-
+            const feed = NerdCast.#startFeed(this.#nerdcastRSSAsJSON, subject)
             const listOfEpisodes = NerdCast.#getEpisodes(episodes)
 
             resolve([
@@ -318,23 +310,86 @@ class NerdCast {
 
 
     /**
-     * For loop that populates the private ``#arrayOfFeedsStrings`` 
+     * For loop that populates the private ``#feeds`` 
      * with a promise for each new feed created separated by topics 
      * based on NerdCast episodes name patterns.
      * 
-     * @method #composeArrayOfFeedStrings
+     * @method #composeFeeds
      */
-    #composeArrayOfFeedStrings() {
-        for (let feed in this.#episodes) {
+    #composeFeeds() {
+        for (let feedObjectKey in this.#episodes) {
             let createRSSPromise = this.#createRSSFileContent(
-                this.#rssFilesInfo[feed].name,
-                this.#rssFilesInfo[feed].description,
-                this.#episodes[feed]
+                this.#rssFilesInfo[feedObjectKey].name,                
+                this.#episodes[feedObjectKey]
             )
 
-            this.#arrayOfFeedsStrings.push(createRSSPromise)
+            this.#feeds.push({
+                fileName: feedObjectKey,
+                rss: createRSSPromise
+            })
+        }
+    }
+
+    /**
+     * @method #checkTotalOfEpisodes
+     */
+    #checkTotalOfEpisodes() {
+        const officialRSSFeedEpisodes = this.#nerdcastRSSAsJSON
+        .rss
+        .channel
+        .item
+
+        this.#officialRSSFeedEpisodesTotal = officialRSSFeedEpisodes.length
+
+        const numberOfEpisodesDifference = ( 
+            this.#officialRSSFeedEpisodesTotal -
+            this.#totalOfEpisodesFromFilteredFeeds
+        )
+
+        if (numberOfEpisodesDifference === 0) {
+            const allSet = 'All episodes from Official Feed RSS were filtered'
+            return { success: true, msg: allSet }
+        } else {
+            let episodesTitles = new Array()
+            let filteredEpisodesTitles = new Array()
+
+            Object.keys(this.#episodes).forEach(feed => {
+                this.#episodes[feed].forEach(episode => {
+                    filteredEpisodesTitles.push(episode.title._text)
+                })
+            })
+
+            officialRSSFeedEpisodes.map(episode => {
+                episodesTitles.push(episode.title._text)
+            })            
+
+            const missingEpisodes = episodesTitles.filter(
+                episode => !filteredEpisodesTitles.includes(episode)
+            )
+
+            let missingEpisodesMsg = [
+                `Missing `,
+                numberOfEpisodesDifference,
+                ` episodes:\n`
+            ].join('')
+
+            missingEpisodes.forEach(missingEp => {
+                missingEpisodesMsg += `\t• ${missingEp}\n`
+            })
+            
+            return { success: false, msg: missingEpisodesMsg } 
 
         }
+    }
+
+    
+    /**
+     * @method createRSSFeeds
+     */
+    #createRSSFeeds() {
+        this.#feeds.forEach(feed => {
+            Helpers.log(`./feeds/__${feed.fileName}.rss`, feed.rss)
+        })
     }
 
 
@@ -348,13 +403,26 @@ class NerdCast {
      * @method execute
      */
     async execute() {
-        this.#composeRssFilesInfo()
-        await this.#requestNerdCastOfficialRSS()
+        this.#rssFilesInfo = Helpers.readFile('./databases/rssFilesInfo.json')
+        await this.#requestNerdCastOfficialRSS()   
         this.#filterEpisodes()
-        this.#composeArrayOfFeedStrings()
-        this.#arrayOfFeedsStrings = await Promise.all(
-            this.#arrayOfFeedsStrings
-        )
+        this.#composeFeeds()
+        const allSet = this.#checkTotalOfEpisodes()
+
+        if (allSet.success) {
+            console.info(allSet.msg)
+
+            let feedsPromises = this.#feeds.map(feed => feed.rss)
+            feedsPromises = await Promise.all(feedsPromises)
+
+            this.#feeds.forEach((feed, index) => {
+                feed.rss = feedsPromises[index]
+            })
+
+            this.#createRSSFeeds()
+        } else {
+            throw new Error(allSet.msg)
+        }
     }
 }
 
