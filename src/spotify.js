@@ -154,14 +154,15 @@ class Spotify {
 
 
     async createPlaylist(feed) {
+        const spotifyUserCredentials = Helpers.readFile(
+            './credentials/__spotify_user_credentials.json'
+        )
+
         const response = await this.#request(
             'POST',
             `users/${this.userId}/playlists`,
             {
-                Authorization: [
-                    `${this.#apiToken.token_type} `,
-                    `${this.#apiToken.access_token}`
-                ].join(''),
+                Authorization: `Bearer ${spotifyUserCredentials.code}`,
                 'Content-Type': 'application/json'
             },
             JSON.stringify({
@@ -178,7 +179,6 @@ class Spotify {
 
 
     async load() {
-        
         await this.#getPlaylists()
     }
 }
