@@ -1,7 +1,5 @@
-const fs = require('fs')
 const convert = require('xml-js')
 const Helpers = require('./helpers')
-const { promises } = require('dns')
 
 
 class NerdCast {
@@ -10,7 +8,7 @@ class NerdCast {
     #officialRSSFeedEpisodesTotal = 0
     #totalOfEpisodesFromFilteredFeeds = 0
     #feeds = new Array()
-    #rssFilesInfo = new Object()
+    #playlistsData = new Object()
 
     /**
      * "Jovem Nerd" is a Brazilian weblog created in 2002 by Alexandre 
@@ -48,16 +46,6 @@ class NerdCast {
 
 
     /**
-     * @type {Object}
-     * @returns {Object} NerdCast episodes separated by topics based on 
-     * its name patterns
-     */
-    get episodes() {
-        return this.#episodes
-    }
-
-
-    /**
      * @type {Array}
      * @returns {Array} An array of the new RSS feeds separated by 
      * topics based on the podcast epidodes name patterns
@@ -70,10 +58,10 @@ class NerdCast {
     /**
      * @type {Object}
      * @returns {Object} JSON loaded from 
-     * ``./databases/rssFilesInfo.json`` file.
+     * ``./databases/playlists_data.json`` file.
      */
-    get rssFilesInfo() {
-        return this.#rssFilesInfo
+    get playlistsData() {
+        return this.#playlistsData
     }
 
 
@@ -117,14 +105,14 @@ class NerdCast {
      * @method #filterEpisodes
      */
     #filterEpisodes() {
-        for (let feedName in this.#rssFilesInfo) {
+        for (let feedName in this.#playlistsData) {
             this.#episodes[feedName] = new Array()
         }
 
-        for (let feedName in this.#rssFilesInfo) {
+        for (let feedName in this.#playlistsData) {
             for (let ep of this.#nerdcastRSSAsJSON.rss.channel.item) {
                 const currentRegExp = new RegExp(
-                    this.#rssFilesInfo[feedName].regExp, 
+                    this.#playlistsData[feedName].regExp, 
                     'i'
                 )
 
@@ -319,16 +307,30 @@ class NerdCast {
     #composeFeeds() {
         for (let feedObjectKey in this.#episodes) {
             let createRSSPromise = this.#createRSSFileContent(
-                this.#rssFilesInfo[feedObjectKey].name,                
+                this.#playlistsData[feedObjectKey].name,                
                 this.#episodes[feedObjectKey]
             )
 
             this.#feeds.push({
                 fileName: feedObjectKey,
-                rss: createRSSPromise
+                rss: createRSSPromise,
+                episodes: this.#episodes[feedObjectKey],
+                spotifyPlaylistName: (
+                    this.#playlistsData[feedObjectKey]
+                    .spotifyPlaylistName
+                ),
+                spotifyPlaylistDescription: (
+                    this.#playlistsData[feedObjectKey]
+                    .spotifyPlaylistDescription
+                ),
+                spotifyPlaylistId: (
+                    this.#playlistsData[feedObjectKey]
+                    .spotifyPlaylistId
+                )
             })
         }
     }
+
 
     /**
      * @method #checkTotalOfEpisodes
@@ -402,14 +404,17 @@ class NerdCast {
      * 
      * @method execute
      */
-    async execute() {
-        this.#rssFilesInfo = Helpers.readFile('./databases/rssFilesInfo.json')
+    async execute(createRSSFeeds) {
+        this.#playlistsData = Helpers.readFile(
+            './databases/playlists_data.json'
+        )
+
         await this.#requestNerdCastOfficialRSS()   
         this.#filterEpisodes()
         this.#composeFeeds()
         const allSet = this.#checkTotalOfEpisodes()
 
-        if (allSet.success) {
+        if (allSet.success && createRSSFeeds) {
             console.info(allSet.msg)
 
             let feedsPromises = this.#feeds.map(feed => feed.rss)
@@ -420,7 +425,9 @@ class NerdCast {
             })
 
             this.#createRSSFeeds()
-        } else {
+        } else if (allSet.success && !createRSSFeeds) {
+            console.info('Process Complete')
+        } else if (!allSet.success)  {
             throw new Error(allSet.msg)
         }
     }

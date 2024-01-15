@@ -1,9 +1,16 @@
-class Spotify {
-    #apiToken
-    #nerdcast
+const Helpers = require('./helpers')
 
-    constructor (showID) {
+
+class Spotify {
+    #apiToken = new String()
+    #playlists = new Object()
+    #nerdCastEpisodes = new Array()
+
+    constructor (
+        showID = '22Wgt4ASeaw8mmoqAWNUn1', 
+        userId = '316zf222zilo7yddtmmi3zqa6v7m') {
         this.showID = showID
+        this.userId = userId
 
         this.urlBase = {
             accounts: 'https://accounts.spotify.com/api/',
@@ -12,8 +19,8 @@ class Spotify {
     }
 
 
-    get nerdcast() {
-        return this.#nerdcast
+    get nerdCastEpisodes() {
+        return this.#nerdCastEpisodes
     }
 
 
@@ -33,42 +40,32 @@ class Spotify {
     async #request(
         method, 
         endpoint, 
-        headers = new Object(), 
+        headers = new Object(),
         body = new String(),
         requestToken = false) {
         let base = new String()
+
         requestToken ? base = this.urlBase.accounts : base = this.urlBase.api
-
-        const options = {
-            method: method,            
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        }
-
+        let options = { method: method }
         if (body.length > 0 && body.constructor === String) options.body = body
-        options.headers = this.#composeObject(options.headers, headers)
+        options.headers = this.#composeObject(new Object(), headers)
+        
         const response = await fetch(`${base}${endpoint}`, options)
 
         if (response.status == 200) {
-            const responseJson = await response.json()
-
-            if (requestToken) {
-                this.#apiToken = responseJson.access_token
-            } else {
-                this.#nerdcast = responseJson
-            }
+            return await response.json()
         } else {
             const errorMsg = [
                 `Request status code is ${response.status}, `,
-                `meaning ${response.statusText}`
+                `meaning ${response.statusText}. Response text: `,
+                await response.text()
             ].join('')
-
             throw new Error(errorMsg)
-
         }
     }
 
 
-    async #requestToken() {
+    async requestToken() {
         const clientIDAndToken = [
             `${process.env['CLIENT_ID']}:`,
             `${process.env['CLIENT_TOKEN']}`
@@ -76,27 +73,113 @@ class Spotify {
 
         const basic_token = Buffer.from(clientIDAndToken).toString('base64')
 
-        await this.#request(
+        this.#apiToken = await this.#request(
             'POST', 
             'token',
-            { Authorization: `Basic ${basic_token}` },
+            { 
+                Authorization: `Basic ${basic_token}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
             'grant_type=client_credentials',
             true
         )
     }
 
-    async #requestNerdCast() {
-        await this.#request(
+
+    async #getNerdCastEpisodes(endpoint) {
+        return await this.#request(
             'GET', 
-            `shows/${this.showID}`,
-            { Authorization: `Bearer ${this.#apiToken}` },
+            endpoint,
+            {
+                Authorization: [
+                    `${this.#apiToken.token_type} `,
+                    `${this.#apiToken.access_token}`
+                ].join(''),
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
         )
     }
 
 
-    async run() {
-        await this.#requestToken()
-        await this.#requestNerdCast()
+    async #getPlaylists(limit = 50, offset = 0) {
+        this.#playlists = await this.#request(
+            'GET',
+            `users/${this.userId}/playlists?limit=${limit}&offset=${offset}`,
+            { 
+                Authorization: [
+                    `${this.#apiToken.token_type} `,
+                    `${this.#apiToken.access_token}`
+                ].join(''),
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        )
+    }
+
+
+    async extract() {
+        /*
+        let offset = {
+            number: 0,
+            regex: /offset=([0-9]{1,})/
+        }
+
+        const limit = 50
+        let response = new Object()
+        
+        do {
+            response = await this.#getNerdCastEpisodes(
+                [
+                    `shows/${this.showID}/episodes?`,
+                    `offset=${offset.number}&limit=${limit}`
+                ].join('')
+            )
+
+            this.#nerdCastEpisodes = [ 
+                ...this.#nerdCastEpisodes, 
+                ...response.items
+            ]
+
+            if (response.next != null) {
+                offset.number = offset.regex.exec(response.next)[1]
+            }
+            
+            console.info(`Offset: ${offset.number} | Total: ${response.total}`)
+
+        } while (response.next != null)
+        */
+
+        this.#nerdCastEpisodes = Helpers.readFile('databases/__nerdcastEpisodes.json')
+
+    }
+
+
+    async createPlaylist(feed) {
+        const response = await this.#request(
+            'POST',
+            `users/${this.userId}/playlists`,
+            {
+                Authorization: [
+                    `${this.#apiToken.token_type} `,
+                    `${this.#apiToken.access_token}`
+                ].join(''),
+                'Content-Type': 'application/json'
+            },
+            JSON.stringify({
+                name: feed.spotifyPlaylistName,
+                description: feed.spotifyPlaylistDescription
+            })
+        )
+
+        Helpers.log(
+            'databases/__createPlaylistResponse.json', 
+            JSON.stringify(response, null, 2)
+        )
+    }
+
+
+    async load() {
+        
+        await this.#getPlaylists()
     }
 }
 

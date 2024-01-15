@@ -1,0 +1,135 @@
+{
+    "canecaDeMamicas": {
+        "regExp": "Caneca\\sde\\sMamicas\\s[0-9]{2,}",
+        "name": "Caneca de Mamicas",
+        "spotifyPlaylistName": "NerdCast: Caneca de Mamicas",
+        "spotifyPlaylistDescription": "Todos os episódios do Caneca de Mamicas nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "empreendedor": {
+        "regExp": "Empreendedor\\s[0-9]{2,}",
+        "name": "Empreendedor",
+        "spotifyPlaylistName": "NerdCast Empreendedor",
+        "spotifyPlaylistDescription": "Todos os episódios do NerdCast Empreendedor nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "ge": {
+        "regExp": "GE\\s[0-9]{2,}",
+        "name": "GE",
+        "spotifyPlaylistName": "NerdCast GE",
+        "spotifyPlaylistDescription": "Todos os episódios do NerdCast GE nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "generacast": {
+        "regExp": "Generacast\\s[0-9]{2,}",
+        "name": "Generacast",
+        "spotifyPlaylistName": "NerdCast: Generacast",
+        "spotifyPlaylistDescription": "Todos os episódios do Generacast nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "haloCast": {
+        "regExp": "HaloCast\\s[0-9]+\\s-\\sHaloCast\\s[0-9]+",
+        "name": "HaloCast",
+        "spotifyPlaylistName": "NerdCast: HaloCast",
+        "spotifyPlaylistDescription": "Todos os episódios do HaloCast nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "laDoBunker": {
+        "regExp": "L.\\sdo\\sBunker\\s[0-9]{2,}",
+        "name": "Lá do Bunker",
+        "spotifyPlaylistName": "NerdCast: Lá do Bunker",
+        "spotifyPlaylistDescription": "Todos os episódios do Lá do Bunker nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "laDoBunkerExtra": {
+        "regExp": "L.\\sdo\\sBunker\\s+Extra|L.\\sdo\\sBunker\\s+Oferecido\\spor",
+        "name": "Lá do Bunker Extra",
+        "spotifyPlaylistName": "NerdCast: Lá do Bunker [Extras]",
+        "spotifyPlaylistDescription": "Todos os episódios extras do Lá do Bunker nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "laDoBunkerOscar": {
+        "regExp": "L.\\sdo\\sBunker\\sOscar\\s[0-9]{2,}",
+        "name": "Lá do Bunker: Oscar",
+        "spotifyPlaylistName": "NerdCast: Lá do Bunker [Oscar]",
+        "spotifyPlaylistDescription": "Todos os episódios sobre o Oscar do Lá do Bunker nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "nerdCash": {
+        "regExp": "NerdCash\\s[0-9]{2,}",
+        "name": "NerdCash",
+        "spotifyPlaylistName": "NerdCast: NerdCash",
+        "spotifyPlaylistDescription": "Todos os episódios do NerdCash nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "nerdCast": {
+        "regExp": "NerdCast\\s[0-9]{2,}|NerdCast\\sBabyCast.*",
+        "name": "NerdCast",
+        "spotifyPlaylistName": "NerdCast: Episódios Regulares",
+        "spotifyPlaylistDescription": "Todos os episódios regulares do NerdCast nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : "61kBARoOH1f2ESBv53BIf6"
+    },
+    "nerdCastExtra": {
+        "regExp": "Extra\\sOferecido\\spor\\s.*\\s|Nerdcast\\sOferecido\\spor\\s.*\\s|NerdCast\\sExtra.*|NerdCast\\sEXTRA.*",
+        "name": "NerdCast Extra",
+        "spotifyPlaylistName": "NerdCast [Extra]",
+        "spotifyPlaylistDescription": "Todos os episódios extras do NerdCast nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "nerdCastRPG": {
+        "regExp": "NerdCast\\sRPG\\s[0-9]{2,}",
+        "name": "NerdCast RPG",
+        "spotifyPlaylistName": "NerdCast: Especial RPG",
+        "spotifyPlaylistDescription": "Todos os episódios especiais de RPG NerdCast nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "nerdLab": {
+        "regExp": "NerdLab\\s[0-9]{2,}",
+        "name": "NerdLab",
+        "spotifyPlaylistName": "NerdCast: NerdLab",
+        "spotifyPlaylistDescription": "Todos os episódios do NerdLab nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "nerdNaCloud": {
+        "regExp": "Nerd\\sna\\sCloud\\s[0-9]{1,}",
+        "name": "Nerd na Cloud",
+        "spotifyPlaylistName": "NerdCast: Nerd na Cloud",
+        "spotifyPlaylistDescription": "Todos os episódios do Nerd na Cloud nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "nerdTech": {
+        "regExp": "NerdTech\\s[0-9]{2,}",
+        "name": "NerdTech",
+        "spotifyPlaylistName": "NerdCast: NerdTech",
+        "spotifyPlaylistDescription": "Todos os episódios do NerdTech nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "papoDeParceiro": {
+        "regExp": "Papo\\sde\\sParceiro\\s[0-9]{2,}",
+        "name": "Papo de Parceiro",
+        "spotifyPlaylistName": "NerdCast: Papo de Parceiro",
+        "spotifyPlaylistDescription": "Todos os episódios do Papo de Parceiro nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "speakEnglish": {
+        "regExp": "Speak\\sEnglish\\s[0-9]{2,}",
+        "name": "Speak English",
+        "spotifyPlaylistName": "NerdCast: Speak English",
+        "spotifyPlaylistDescription": "Todos os episódios do Speak English nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "vaiTeCatar": {
+        "regExp": "Vai\\ste\\sCatar\\s[0-9]{2,}",
+        "name": "Vai te Catar",
+        "spotifyPlaylistName": "NerdCast: Vai te Catar",
+        "spotifyPlaylistDescription": "Todos os episódios do Vai te Catar nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    },
+    "vouTeContar": {
+        "regExp": "Vou\\sTe\\sContar\\s[0-9]{2,}",
+        "name": "Vou te Contar",
+        "spotifyPlaylistName": "NerdCast: Vou te Contar",
+        "spotifyPlaylistDescription": "Todos os episódios do Vou te Contar nessa playlist atualizada por m2l.tech",
+        "spotifyPlaylistId" : null
+    }
+}

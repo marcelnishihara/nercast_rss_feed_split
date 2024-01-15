@@ -1,12 +1,12 @@
 const { Storage } = require('@google-cloud/storage')
-const serviceAccount = require('../credentials/cloud_storage.json')
+const serviceAccount = require('../credentials/__service_account.json')
 
 
 class CloudStorage {
     #storage
     #objects
 
-    constructor (projectId = 'nerdcast-feeds') {      
+    constructor (projectId = 'm2l.tech') {      
         this.projectId = projectId
     }
 
@@ -44,7 +44,7 @@ class CloudStorage {
      * @method #getObjectsFromBucket
      * @param {String} bucketName - Bucket name
      */
-    async #getObjectsFromBucket(bucketName = 'nerdcast-feeds') {
+    async #getObjectsFromBucket(bucketName = 'nerdcastfeeds.m2l.tech') {
         [this.#objects] = await this.#storage.bucket(bucketName).getFiles()
     }
 

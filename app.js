@@ -1,20 +1,26 @@
+const CloudStorage = require('./src/cloud_storage')
 const Spotify = require('./src/spotify')
 const NerdCast = require('./src/nerdcast')
+const Helpers = require('./src/helpers')
+
 
 const main = async _ => {
     let nerdcast = new NerdCast()
-    await nerdcast.execute()
+    await nerdcast.execute(false)
 
-    /**
-    let nerdcastId = '22Wgt4ASeaw8mmoqAWNUn1'
-    let spotify = new Spotify(nerdcastId)
-    await spotify.run()
-    
-    Helpers.log(
-        './databases/__nerdcast.json',
-        JSON.stringify(spotify.nerdcast, null, 4)
-    )
-    */
+    let spotify = new Spotify()
+    await spotify.requestToken()
+    await spotify.extract()
+
+    nerdcast.feeds.forEach(async feed => {
+        if (feed.spotifyPlaylistId === null) {
+            await spotify.createPlaylist(feed)
+        } else {
+            /*
+                insert code to update playlist
+            */
+        }
+    })
 }
 
 
