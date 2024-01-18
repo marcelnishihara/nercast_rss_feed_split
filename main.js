@@ -16,12 +16,11 @@ const main = async _ => {
         if (feed.spotifyPlaylistId === null) {
             console.info(feed.spotifyPlaylistName)
             await spotify.createPlaylist(feed)
-        } else {
-            /*
-             * Insert the playlist maintenence code here 
-             */
+        } else if (feed.spotifyPlaylistName) {
+            console.info(feed.spotifyPlaylistName)
+            await spotify.insertEpisodes(feed)
         }
-        await Helpers.sleep(1000)
+        await Helpers.sleep(5000)
     }
 }
 

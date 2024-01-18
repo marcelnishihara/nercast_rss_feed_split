@@ -53,6 +53,7 @@ class Spotify {
         const response = await fetch(`${base}${endpoint}`, options)
 
         if (response.status >= 200 && response.status <= 299) {
+            console.info(`Request Status Code: ${response.status}`)
             return await response.json()
         } else {
             const errorMsg = [
@@ -62,27 +63,6 @@ class Spotify {
             ].join('')
             throw new Error(errorMsg)
         }
-    }
-
-
-    async requestToken() {
-        const clientIDAndToken = [
-            `${process.env['CLIENT_ID']}:`,
-            `${process.env['CLIENT_TOKEN']}`
-        ].join('')
-
-        const basic_token = Buffer.from(clientIDAndToken).toString('base64')
-
-        this.#apiToken = await this.#request(
-            'POST', 
-            'token',
-            { 
-                Authorization: `Basic ${basic_token}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            'grant_type=client_credentials',
-            true
-        )
     }
 
 
@@ -112,6 +92,50 @@ class Spotify {
                 ].join(''),
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
+        )
+    }
+
+
+    #matchPlaylists(feed) {
+        const episodesUri = new Array()
+
+        feed.episodes.forEach(episodeFromRSS => {
+            this.#nerdCastEpisodes.forEach(episodeFromSpotify => {
+                const isSameEpisode = (
+                    episodeFromRSS.title._text === 
+                    episodeFromSpotify.name
+                )
+
+                if (isSameEpisode) {
+                    episodesUri.push(episodeFromSpotify.uri)
+                    episodeFromRSS.spotifyUri = episodeFromSpotify.uri
+                }
+
+            })
+        })
+
+        return episodesUri
+
+    }
+
+
+    async requestToken() {
+        const clientIDAndToken = [
+            `${process.env['CLIENT_ID']}:`,
+            `${process.env['CLIENT_TOKEN']}`
+        ].join('')
+
+        const basic_token = Buffer.from(clientIDAndToken).toString('base64')
+
+        this.#apiToken = await this.#request(
+            'POST', 
+            'token',
+            { 
+                Authorization: `Basic ${basic_token}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            'grant_type=client_credentials',
+            true
         )
     }
 
@@ -158,7 +182,7 @@ class Spotify {
             './credentials/__spotify_user_credentials.json'
         )
 
-        const response = await this.#request(
+        await this.#request(
             'POST',
             `users/${this.userId}/playlists`,
             {
@@ -170,19 +194,48 @@ class Spotify {
                 description: feed.spotifyPlaylistDescription
             })
         )
+    }
 
-        Helpers.log(
-            [
-                'databases/',
-                `__createPlaylistResponse_${feed.spotifyPlaylistName}`,
-                '.json'
-            ].join(''),
-            JSON.stringify({
-                status: response.status,
-                statusText: response.statusText,
-                text: await response.text()
-            }, null, 4)
+
+    async insertEpisodes(feed) {
+        const episodesUri = this.#matchPlaylists(feed)
+
+        const episodesArrays = episodesUri
+        .reverse()
+        .reduce((result, item, index) => { 
+            const chunkIndex = Math.floor(index/100)
+            if (!result[chunkIndex]) result[chunkIndex] = new Array()
+            result[chunkIndex].push(item)
+            return result
+          }, new Array())
+
+        const spotifyUserCredentials = Helpers.readFile(
+            './credentials/__spotify_user_credentials.json'
         )
+
+        for (let index in episodesArrays) {
+            let position = 0
+            index = parseInt(index)
+            if (index > 0) position = episodesArrays[index-1].length
+
+            await this.#request(
+                'POST',
+                `playlists/${feed.spotifyPlaylistId}/tracks`,
+                {
+                    Authorization: (
+                        `Bearer ${spotifyUserCredentials.access_token}`
+                    ),
+                    'Content-Type': 'application/json'
+                },
+                JSON.stringify({
+                    uris: episodesArrays[index],
+                    position: position
+                })
+            )
+
+            Helpers.sleep(2000)
+
+        }
     }
 
 
