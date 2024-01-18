@@ -12,15 +12,17 @@ const main = async _ => {
     await spotify.requestToken()
     await spotify.extract()
 
-    nerdcast.feeds.forEach(async feed => {
+    for (const feed of nerdcast.feeds) {
         if (feed.spotifyPlaylistId === null) {
+            console.info(feed.spotifyPlaylistName)
             await spotify.createPlaylist(feed)
         } else {
             /*
-                insert code to update playlist
-            */
+             * Insert the playlist maintenence code here 
+             */
         }
-    })
+        await Helpers.sleep(1000)
+    }
 }
 
 

@@ -52,7 +52,7 @@ class Spotify {
         
         const response = await fetch(`${base}${endpoint}`, options)
 
-        if (response.status == 200) {
+        if (response.status >= 200 && response.status <= 299) {
             return await response.json()
         } else {
             const errorMsg = [
@@ -162,7 +162,7 @@ class Spotify {
             'POST',
             `users/${this.userId}/playlists`,
             {
-                Authorization: `Bearer ${spotifyUserCredentials.code}`,
+                Authorization: `Bearer ${spotifyUserCredentials.access_token}`,
                 'Content-Type': 'application/json'
             },
             JSON.stringify({
@@ -172,8 +172,16 @@ class Spotify {
         )
 
         Helpers.log(
-            'databases/__createPlaylistResponse.json', 
-            JSON.stringify(response, null, 2)
+            [
+                'databases/',
+                `__createPlaylistResponse_${feed.spotifyPlaylistName}`,
+                '.json'
+            ].join(''),
+            JSON.stringify({
+                status: response.status,
+                statusText: response.statusText,
+                text: await response.text()
+            }, null, 4)
         )
     }
 
